@@ -57,6 +57,7 @@ const main = async () => {
     await inline('js/community.js')
   );
   html = html.replace('<script src="js/game.js"></script>', await inline('js/game.js'));
+  html = html.replace('<script src="js/run.js"></script>', await inline('js/run.js'));
   // 兜底：还有没内联的外链脚本/样式就当场报错（漏了某个 js 会变成"线上好好的、单文件版报错"）
   const leftovers = [...html.matchAll(/<script[^>]+src="([^"]+)"|<link[^>]+href="([^"]+)"/g)]
     .map((m) => m[1] || m[2])
