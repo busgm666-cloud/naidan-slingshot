@@ -10,6 +10,11 @@
      tools/make-variants.mjs 程序化生成——脚本是 MIT 的，但生成的图仍受上述归属约束。
    - 真要商业化发行，必须换成自有美术或取得授权。
 
+   - 新增 `assets/naiwa_roll.png`：来自
+     [Nailong-Studio/wallpaper](https://github.com/Nailong-Studio/wallpaper) 的
+     `emotes/奶蛙-姿态-翻滚.png`，本项目仅做裁边、缩小和非商业同人使用；它不属于
+     本仓库 LICENSE 的 MIT 授权范围。
+
 3. 音效：
    - 除了下面这一条，其余全部由 js/audio.js 用 WebAudio 现场合成，仓库里没有对应的音频文件。
    - `assets/boss_laugh.mp3`（击败 boss 的那声大笑，3 秒）由项目作者提供，
