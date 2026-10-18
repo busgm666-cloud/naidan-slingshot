@@ -13,6 +13,7 @@
     "check": "node tools/check-prefabs.mjs",
     "workshop-seed": "node tools/build-workshop-seed.mjs",
     "verify": "node tools/verify.mjs",
+    "verify:run": "node tools/verify-run.mjs",
     "boss-laugh": "node tools/make-boss-laugh.mjs"
   },
   "devDependencies": {
