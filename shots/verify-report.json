@@ -113,8 +113,8 @@
   },
   "queueIdle": {
     "samples": 70,
-    "distinctPoses": 12,
-    "minDy": -62.3,
+    "distinctPoses": 23,
+    "minDy": -62.4,
     "maxDeg": 359
   },
   "initialDrift": 1.4,
@@ -138,7 +138,7 @@
   "chargeFx": {
     "power": 1,
     "charge": 0.98,
-    "shakePeak": 1.32,
+    "shakePeak": 1.31,
     "aimAssist": {
       "fill": "#d8f5ff",
       "stroke": "rgba(0,120,220,0.92)"
@@ -263,7 +263,7 @@
       "vxBefore": 24.59,
       "vxMid": 24.23,
       "xMid": 733,
-      "xSoon": 1222
+      "xSoon": 1231
     },
     {
       "type": "dash",
@@ -276,12 +276,12 @@
       "blocksBefore": 3,
       "blocksAfter": 1,
       "pigsBefore": 1,
-      "pigsAfter": 0,
+      "pigsAfter": 1,
       "shockwave": 0,
-      "vxBefore": 24.84,
-      "vxMid": 33.53,
-      "xMid": 766,
-      "xSoon": 1329
+      "vxBefore": 24.79,
+      "vxMid": 33.51,
+      "xMid": 791,
+      "xSoon": 1389
     },
     {
       "type": "split",
@@ -294,12 +294,12 @@
       "blocksBefore": 3,
       "blocksAfter": 0,
       "pigsBefore": 1,
-      "pigsAfter": 0,
+      "pigsAfter": 1,
       "shockwave": 0,
-      "vxBefore": 24.69,
-      "vxMid": 23.1,
-      "xMid": 690,
-      "xSoon": 1177
+      "vxBefore": 24.63,
+      "vxMid": 23.25,
+      "xMid": 693,
+      "xSoon": 1186
     },
     {
       "type": "bomb",
@@ -335,7 +335,7 @@
       "vxBefore": 24.48,
       "vxMid": 24.07,
       "xMid": 731,
-      "xSoon": 1222
+      "xSoon": 1234
     },
     {
       "type": "milk",
@@ -348,12 +348,12 @@
       "blocksBefore": 3,
       "blocksAfter": 2,
       "pigsBefore": 1,
-      "pigsAfter": 0,
+      "pigsAfter": 1,
       "shockwave": 0,
-      "vxBefore": 24.55,
-      "vxMid": 13.3,
-      "xMid": 667,
-      "xSoon": 988
+      "vxBefore": 24.62,
+      "vxMid": 13.33,
+      "xMid": 643,
+      "xSoon": 965
     },
     {
       "type": "back",
@@ -386,10 +386,10 @@
       "pigsBefore": 1,
       "pigsAfter": 1,
       "shockwave": 0,
-      "vxBefore": 24.92,
-      "vxMid": 28.69,
-      "xMid": 723,
-      "xSoon": 1469
+      "vxBefore": 24.87,
+      "vxMid": 28.66,
+      "xMid": 748,
+      "xSoon": 1493
     }
   ],
   "plowTest": {
@@ -411,12 +411,12 @@
       "y": -0.376
     },
     "straight": 0.8,
-    "guidedFrames": 14,
+    "guidedFrames": 18,
     "maxV": 30,
     "marks": 1
   },
   "spinTest": {
-    "samples": 47,
+    "samples": 59,
     "peak": 0.036,
     "restAv": 0.003
   },
@@ -557,7 +557,7 @@
     {
       "seed": 7,
       "level": 5,
-      "drift": 5,
+      "drift": 5.1,
       "pigs": 4,
       "blocks": 16,
       "birds": 5,
@@ -573,7 +573,7 @@
     {
       "seed": 7,
       "level": 6,
-      "drift": 4.1,
+      "drift": 5.1,
       "pigs": 5,
       "blocks": 12,
       "birds": 5,
@@ -637,7 +637,7 @@
     {
       "seed": 7,
       "level": 12,
-      "drift": 4.1,
+      "drift": 5.1,
       "pigs": 8,
       "blocks": 27,
       "birds": 7,
@@ -685,7 +685,7 @@
     {
       "seed": 12345,
       "level": 3,
-      "drift": 5,
+      "drift": 5.1,
       "pigs": 3,
       "blocks": 9,
       "birds": 4,
@@ -1063,14 +1063,14 @@
   },
   "bossCutIn": {
     "label": "BOSS",
-    "maxZoom": 2.349,
+    "maxZoom": 2.35,
     "barShown": true
   },
   "bossDamage": {
     "maxHp": 980,
     "direct": 86,
     "towerIntact": true,
-    "fall": 288,
+    "fall": 347,
     "fallKind": "direct",
     "barWidth": "91.3%"
   },
@@ -1138,10 +1138,10 @@
       "fallK": 0
     },
     "state": "aim",
-    "hpAfterFall": 771,
+    "hpAfterFall": 765,
     "falls": [
-      771,
-      650
+      765,
+      640
     ],
     "shots": 6,
     "laugh": {
@@ -1249,8 +1249,8 @@
     "armed": {
       "current": "nuke",
       "state": "aim",
-      "flowA": 69,
-      "flowB": 87
+      "flowA": 68,
+      "flowB": 86
     },
     "blasted": {
       "state": "clearing",
@@ -1309,7 +1309,7 @@
       "levelBirds": [
         "naidan",
         "naidan",
-        "milk",
+        "dash",
         "bomb"
       ]
     }
@@ -1468,7 +1468,7 @@
       "code": "eyJ2IjoxLCJuIjoi6aqM5pS25bCP5YWzwrfmipXnqL_niYgiLCJ3IjoyNzIwLCJzIjpbWzE5MCw0NzBdLFsxMTkwLDQ3MF1dLCJiIjpbWzkwMCw1NzAsMzAsMTMwLDAsMF0sWzEwNDAsNTcwLDMwLDEzMCwwLDBdLFs5NzAsNDkwLDE5MCwzMCwwLDBdLFsxMzAwLDU2MCwxMjAsOTAsMSwxNV1dLCJwIjpbWzk3MCw2MDAsNDAsMF0sWzE1MjAsNjAwLDQwLDFdXSwiayI6WzAsMywzXX0",
       "name": "验收小关·投稿版",
       "author": "匿名测试员",
-      "submittedAt": "2026-10-17T16:55:06.466Z",
+      "submittedAt": "2026-10-18T03:59:37.045Z",
       "stats": {
         "likes": 0,
         "plays": 0
