@@ -36,6 +36,18 @@ const cases = [
   { label: '分数构成异常', row: { ...base, name: `分数${suffix}`, score: 9000 } },
 ];
 
+const probe = async (method) => {
+  const res = await fetch(`${SUPABASE}/run_scores?name=eq.__rbac_probe_none__`, {
+    method,
+    headers: {
+      apikey: KEY,
+      'Content-Type': 'application/json',
+    },
+    body: method === 'PATCH' ? '{"score":1}' : undefined,
+  });
+  return { status: res.status, blocked: res.status === 401 || res.status === 403 };
+};
+
 const results = [];
 for (const item of cases) {
   try {
@@ -46,7 +58,15 @@ for (const item of cases) {
   }
 }
 
+const updateProbe = await probe('PATCH');
+const deleteProbe = await probe('DELETE');
 const missing = results.some((r) => r.status === 404);
-const ok = !missing && results.every((r) => r.rejected);
-console.log(JSON.stringify({ ok, missingTable: missing, results }, null, 2));
+const rbacOk = updateProbe.blocked && deleteProbe.blocked;
+const ok = !missing && results.every((r) => r.rejected) && rbacOk;
+console.log(JSON.stringify({
+  ok,
+  missingTable: missing,
+  results,
+  rbac: { update: updateProbe, delete: deleteProbe },
+}, null, 2));
 if (!ok) process.exitCode = 1;
