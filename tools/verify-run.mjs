@@ -84,6 +84,15 @@ const main = async () => {
     await sleep(250);
     if (await page.evaluate(() => window.NailongRun.phase()) !== 'dead') failures.push('追兵追上后没有进入结算页');
 
+    const beforeBadNameRows = rows.length;
+    await page.locator('#runName').fill('加微信 abcdef');
+    await page.locator('[data-act="submit"]').click();
+    await sleep(180);
+    const badNameMsg = await page.locator('#runMsg').textContent();
+    if (!badNameMsg.includes('昵称') || rows.length !== beforeBadNameRows) {
+      failures.push('违禁昵称没有被前端拦住，或仍然发出了排行榜请求');
+    }
+
     await page.locator('#runName').fill('自动验收');
     await page.locator('[data-act="submit"]').click();
     await page.waitForFunction(() => document.getElementById('runMsg')?.textContent.includes('已上传'), null, { timeout: 5000 });
@@ -107,7 +116,7 @@ const main = async () => {
     if (!singleReady.visible || singleReady.eggs !== 8 || !singleReady.canvas) failures.push(`单文件版初始化失败：${JSON.stringify(singleReady)}`);
     await p2.close();
 
-    const report = { ok: failures.length === 0, failures, eggs, dailyTrack, singleReady };
+    const report = { ok: failures.length === 0, failures, eggs, dailyTrack, badNameMsg, singleReady };
     await fs.writeFile(path.join(root, 'shots', 'verify-run-report.json'), JSON.stringify(report, null, 2), 'utf8');
     console.log(JSON.stringify(report, null, 2));
     if (failures.length) process.exitCode = 1;

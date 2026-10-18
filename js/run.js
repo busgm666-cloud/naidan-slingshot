@@ -2433,7 +2433,16 @@
       const res = await rest('/run_scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify({ name, score: score(), meters: meters(), coins: g.coinCount, track: g.track }),
+        body: JSON.stringify({
+          name,
+          score: score(),
+          meters: meters(),
+          coins: g.coinCount,
+          stomps: g.stomps,
+          smashes: g.smashes,
+          run_seconds: Math.max(1, Math.ceil(g.t / 60)),
+          track: g.track,
+        }),
       });
       if (res.ok) return { ok: true };
       if (res.status === 404) return { error: '排行榜还没开通（等作者在 Supabase 建表）' };

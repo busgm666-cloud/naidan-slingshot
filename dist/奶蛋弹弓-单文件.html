@@ -2644,7 +2644,7 @@ window.WorkshopCommunity = (() => {
   const world = engine.world;
   /** 版本戳：每次改完随手改一下，标题页角落和 window.__nai.build 都能看到，
    *  方便确认浏览器里跑的是不是最新那份（file:// 打开时页面不会自己刷新） */
-  const BUILD = '2026-10-18 · 核爆蛋第五等候位';
+  const BUILD = '2026-10-18 · 奶龙快跑与防刷榜';
   let state = 'title'; // title | pick | intro | aim | fly | settling | clearing | restartConfirm | over
   let score = 0;
   let birdsLeft = 0;
@@ -9660,7 +9660,16 @@ window.WorkshopCommunity = (() => {
       const res = await rest('/run_scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify({ name, score: score(), meters: meters(), coins: g.coinCount, track: g.track }),
+        body: JSON.stringify({
+          name,
+          score: score(),
+          meters: meters(),
+          coins: g.coinCount,
+          stomps: g.stomps,
+          smashes: g.smashes,
+          run_seconds: Math.max(1, Math.ceil(g.t / 60)),
+          track: g.track,
+        }),
       });
       if (res.ok) return { ok: true };
       if (res.status === 404) return { error: '排行榜还没开通（等作者在 Supabase 建表）' };

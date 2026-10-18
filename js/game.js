@@ -252,7 +252,7 @@
   const world = engine.world;
   /** 版本戳：每次改完随手改一下，标题页角落和 window.__nai.build 都能看到，
    *  方便确认浏览器里跑的是不是最新那份（file:// 打开时页面不会自己刷新） */
-  const BUILD = '2026-10-18 · 核爆蛋第五等候位';
+  const BUILD = '2026-10-18 · 奶龙快跑与防刷榜';
   let state = 'title'; // title | pick | intro | aim | fly | settling | clearing | restartConfirm | over
   let score = 0;
   let birdsLeft = 0;

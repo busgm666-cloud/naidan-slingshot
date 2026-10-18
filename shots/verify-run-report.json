@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "failures": [],
+  "eggs": 8,
+  "dailyTrack": "daily-20261018",
+  "badNameMsg": "昵称包含违禁词「加微信」",
+  "singleReady": {
+    "visible": true,
+    "eggs": 8,
+    "canvas": true
+  }
+}
