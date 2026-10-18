@@ -450,6 +450,51 @@
     backdrop-filter: blur(9px);
     box-shadow: 0 24px 70px rgba(87,58,34,.3), 0 0 0 1px rgba(255,255,255,.7) inset;
   }
+  #titleScreen .panel .tip { font-size: 12px; line-height: 1.5; margin: 5px 0 6px; }
+  #titleScreen .panel #buildStamp { font-size: 10px; margin: 7px 0 0; }
+  @media (max-width: 700px), (max-width: 900px) and (max-height: 560px) {
+    /* 手机主菜单：压成四列两行，整页必须装得下；极矮屏可在面板内纵向滚动 */
+    #titleScreen { align-items: center; padding: 8px 0; }
+    #titleScreen .panel {
+      width: calc(100vw - 20px);
+      max-width: 460px;
+      max-height: calc(100vh - 16px);
+      max-height: calc(100dvh - 16px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      scrollbar-width: none;
+      padding: 14px 12px 12px;
+      border-radius: 20px;
+    }
+    #titleScreen .panel::-webkit-scrollbar { display: none; }
+    #titleScreen .panel h1 { font-size: 24px; margin-bottom: 3px; letter-spacing: 1px; }
+    #titleScreen .panel p.big { font-size: 14px; line-height: 1.4; margin: 3px 0 4px; }
+    #titleScreen .panel .tip { font-size: 11px; line-height: 1.45; margin: 4px 0 5px; }
+    #titleScreen #roster {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px; margin-top: 8px;
+    }
+    #titleScreen #roster .card {
+      min-width: 0; padding: 6px 3px 7px; gap: 1px; border-radius: 12px;
+    }
+    #titleScreen #roster img { height: 36px; }
+    #titleScreen #roster .nm { font-size: 11px; line-height: 1.2; }
+    #titleScreen #roster .tg {
+      min-height: 23px; font-size: 9.5px; line-height: 1.2;
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+    #titleScreen .row { flex-wrap: nowrap; gap: 6px; margin-top: 11px; }
+    #titleScreen .row button {
+      flex: 1 1 0; min-width: 0; padding: 9px 4px;
+      min-height: 38px; font-size: 12px; letter-spacing: 0; white-space: nowrap;
+      box-shadow: 0 4px 0 var(--jam-dark);
+    }
+    #titleScreen .row button.ghost { box-shadow: 0 4px 0 rgba(74,53,39,.18); }
+    #titleScreen .panel #buildStamp { font-size: 9.5px; margin-top: 7px; }
+  }
 </style>
 </head>
 <body>
@@ -477,7 +522,7 @@
       <div class="panel">
         <h1>奶蛋弹弓</h1>
         <p class="big">按住奶蛋往后拉，松手发射，把奶蛙全撞翻</p>
-        <p style="font-size:13px">飞行中<b>点一下屏幕</b>可以放技能 · 每撞飞一只奶蛙 +5000 分 · 剩一发奶蛋 +10000 分</p>
+        <p class="tip">飞行中<b>点一下屏幕</b>可以放技能 · 每撞飞一只奶蛙 +5000 分 · 剩一发奶蛋 +10000 分</p>
         <div id="roster"></div>
         <div class="row">
           <button id="btnResumeEndless" class="hide">继续无尽</button>
@@ -485,7 +530,7 @@
           <button id="btnEndless" class="ghost">无尽模式</button>
           <button id="btnRun" class="ghost">奶龙快跑</button>
         </div>
-        <p id="buildStamp" style="font-size:11px;color:#a89383;margin:12px 0 0"></p>
+        <p id="buildStamp"></p>
       </div>
     </div>
     <div class="layer hide" id="endScreen">
