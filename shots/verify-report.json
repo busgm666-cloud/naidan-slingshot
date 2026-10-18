@@ -83,7 +83,8 @@
   "titleButtons": [
     "继续无尽",
     "创意工坊",
-    "无尽模式"
+    "无尽模式",
+    "奶龙快跑"
   ],
   "customStart": {
     "cards": 8,
@@ -113,9 +114,9 @@
   },
   "queueIdle": {
     "samples": 70,
-    "distinctPoses": 23,
-    "minDy": -62.4,
-    "maxDeg": 359
+    "distinctPoses": 11,
+    "minDy": -62,
+    "maxDeg": 348
   },
   "initialDrift": 1.4,
   "fallDamage": {
@@ -138,7 +139,7 @@
   "chargeFx": {
     "power": 1,
     "charge": 0.98,
-    "shakePeak": 1.31,
+    "shakePeak": 1.32,
     "aimAssist": {
       "fill": "#d8f5ff",
       "stroke": "rgba(0,120,220,0.92)"
@@ -263,7 +264,7 @@
       "vxBefore": 24.59,
       "vxMid": 24.23,
       "xMid": 733,
-      "xSoon": 1231
+      "xSoon": 1222
     },
     {
       "type": "dash",
@@ -279,8 +280,8 @@
       "pigsAfter": 1,
       "shockwave": 0,
       "vxBefore": 24.79,
-      "vxMid": 33.51,
-      "xMid": 791,
+      "vxMid": 33.58,
+      "xMid": 757,
       "xSoon": 1389
     },
     {
@@ -297,9 +298,9 @@
       "pigsAfter": 1,
       "shockwave": 0,
       "vxBefore": 24.63,
-      "vxMid": 23.25,
-      "xMid": 693,
-      "xSoon": 1186
+      "vxMid": 23.2,
+      "xMid": 716,
+      "xSoon": 1199
     },
     {
       "type": "bomb",
@@ -332,10 +333,10 @@
       "pigsBefore": 1,
       "pigsAfter": 0,
       "shockwave": 0,
-      "vxBefore": 24.48,
-      "vxMid": 24.07,
-      "xMid": 731,
-      "xSoon": 1234
+      "vxBefore": 24.54,
+      "vxMid": 24.14,
+      "xMid": 707,
+      "xSoon": 1210
     },
     {
       "type": "milk",
@@ -348,12 +349,12 @@
       "blocksBefore": 3,
       "blocksAfter": 2,
       "pigsBefore": 1,
-      "pigsAfter": 1,
+      "pigsAfter": 0,
       "shockwave": 0,
-      "vxBefore": 24.62,
-      "vxMid": 13.33,
-      "xMid": 643,
-      "xSoon": 965
+      "vxBefore": 24.55,
+      "vxMid": 13.3,
+      "xMid": 667,
+      "xSoon": 988
     },
     {
       "type": "back",
@@ -368,10 +369,10 @@
       "pigsBefore": 1,
       "pigsAfter": 1,
       "shockwave": 0,
-      "vxBefore": 24.77,
-      "vxMid": -25.91,
-      "xMid": 407,
-      "xSoon": 101
+      "vxBefore": 24.71,
+      "vxMid": -25.85,
+      "xMid": 432,
+      "xSoon": 100
     },
     {
       "type": "seek",
@@ -389,7 +390,7 @@
       "vxBefore": 24.87,
       "vxMid": 28.66,
       "xMid": 748,
-      "xSoon": 1493
+      "xSoon": 1523
     }
   ],
   "plowTest": {
@@ -416,7 +417,7 @@
     "marks": 1
   },
   "spinTest": {
-    "samples": 59,
+    "samples": 58,
     "peak": 0.036,
     "restAv": 0.003
   },
@@ -557,7 +558,7 @@
     {
       "seed": 7,
       "level": 5,
-      "drift": 5.1,
+      "drift": 5,
       "pigs": 4,
       "blocks": 16,
       "birds": 5,
@@ -573,7 +574,7 @@
     {
       "seed": 7,
       "level": 6,
-      "drift": 5.1,
+      "drift": 4.1,
       "pigs": 5,
       "blocks": 12,
       "birds": 5,
@@ -1063,7 +1064,7 @@
   },
   "bossCutIn": {
     "label": "BOSS",
-    "maxZoom": 2.35,
+    "maxZoom": 2.349,
     "barShown": true
   },
   "bossDamage": {
@@ -1138,10 +1139,10 @@
       "fallK": 0
     },
     "state": "aim",
-    "hpAfterFall": 765,
+    "hpAfterFall": 771,
     "falls": [
-      765,
-      640
+      771,
+      650
     ],
     "shots": 6,
     "laugh": {
@@ -1249,8 +1250,8 @@
     "armed": {
       "current": "nuke",
       "state": "aim",
-      "flowA": 68,
-      "flowB": 86
+      "flowA": 56,
+      "flowB": 75
     },
     "blasted": {
       "state": "clearing",
@@ -1468,7 +1469,7 @@
       "code": "eyJ2IjoxLCJuIjoi6aqM5pS25bCP5YWzwrfmipXnqL_niYgiLCJ3IjoyNzIwLCJzIjpbWzE5MCw0NzBdLFsxMTkwLDQ3MF1dLCJiIjpbWzkwMCw1NzAsMzAsMTMwLDAsMF0sWzEwNDAsNTcwLDMwLDEzMCwwLDBdLFs5NzAsNDkwLDE5MCwzMCwwLDBdLFsxMzAwLDU2MCwxMjAsOTAsMSwxNV1dLCJwIjpbWzk3MCw2MDAsNDAsMF0sWzE1MjAsNjAwLDQwLDFdXSwiayI6WzAsMywzXX0",
       "name": "验收小关·投稿版",
       "author": "匿名测试员",
-      "submittedAt": "2026-10-18T03:59:37.045Z",
+      "submittedAt": "2026-10-18T04:10:52.767Z",
       "stats": {
         "likes": 0,
         "plays": 0
