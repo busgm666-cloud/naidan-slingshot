@@ -15,6 +15,8 @@
     "verify": "node tools/verify.mjs",
     "verify:run": "node tools/verify-run.mjs",
     "verify:anticheat": "node tools/verify-run-anticheat.mjs",
+    "verify:slingshot": "node tools/verify-slingshot.mjs",
+    "verify:slingshot-anticheat": "node tools/verify-slingshot-anticheat.mjs",
     "boss-laugh": "node tools/make-boss-laugh.mjs"
   },
   "devDependencies": {

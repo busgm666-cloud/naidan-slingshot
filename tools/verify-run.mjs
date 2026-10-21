@@ -27,9 +27,10 @@ const waitServer = async (url) => {
 
 const main = async () => {
   const server = spawn(process.execPath, [path.join(root, 'tools', 'serve.mjs'), String(PORT)], { stdio: 'ignore' });
+  const beijingDate = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10).replace(/-/g, '');
   const rows = [
     { name: '测试第一名', score: 900, meters: 700, track: 'free' },
-    { name: '测试第二名', score: 800, meters: 650, track: 'daily-20261018' },
+    { name: '测试第二名', score: 800, meters: 650, track: `daily-${beijingDate}` },
   ];
   const failures = [];
   let browser;

@@ -103,6 +103,11 @@
 表没建之前，排行榜只显示"还没开通"，不影响游戏。执行建表后可用 `npm run verify:anticheat` 发三条非法请求确认服务端拦截。
 没有账号体系，所以数据库能挡住明显异常的分数，但仍不能替代服务端回放/签名，无法做到绝对防作弊。
 
+奶蛋弹弓无尽模式另有一张同昵称只留最高分的总榜 / 本周榜。上传时会带上关卡数、普通奶蛙、物块、boss 和剩余奶蛋奖励；
+服务端按 `普通奶蛙×5000 + 物块×500 + boss×30000 + 剩余奶蛋奖励` 逐项重建总分，并限制关卡推进速度、boss 数量和异常数量。
+开通时在 Supabase SQL Editor 执行 `supabase/slingshot_scores.sql`（要先更新过 `workshop.sql`，亲属称谓等违禁词会在那里同步更新）。
+建表后可运行 `npm run verify:slingshot-anticheat` 验证服务端拦截；本地 UI 和上传流程用 `npm run verify:slingshot` 验收。
+
 ## 八个奶蛋
 
 飞行中点一下屏幕就能放技能，左下角会浮出当前这只奶蛋的提示条。
@@ -446,6 +451,8 @@ Supabase 只需要初始化一次：打开 Dashboard → SQL Editor，整段执�
 ├─ art-source/                联网扒到的原始图（extra/ 是没用上的备选）
 ├─ vendor/matter.min.js       物理引擎（Matter.js 0.20）
 ├─ supabase/workshop.sql      投稿表、RLS 与匿名读写权限
+├─ supabase/run_scores.sql    奶龙快跑榜与防刷约束
+├─ supabase/slingshot_scores.sql 奶蛋弹弓无尽榜与防刷约束
 ├─ workshop/                  静态精选目录（JSON + 单文件用 JS 数据）
 ├─ tools/
 │  ├─ prepare-assets.mjs      素材处理（抠图/清底/压缩）

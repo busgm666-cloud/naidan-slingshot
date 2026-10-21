@@ -147,8 +147,14 @@
     endStars: document.getElementById('endStars'),
     endScore: document.getElementById('endScore'),
     endNote: document.getElementById('endNote'),
+    slingshotSubmit: document.getElementById('slingshotSubmit'),
+    slingshotName: document.getElementById('slingshotName'),
+    btnSubmitSlingshot: document.getElementById('btnSubmitSlingshot'),
+    slingshotSubmitMsg: document.getElementById('slingshotSubmitMsg'),
     toast: document.getElementById('toast'),
     btnWorkshop: document.getElementById('btnWorkshop'),
+    btnLeaderboard: document.getElementById('btnLeaderboard'),
+    btnEndLeaderboard: document.getElementById('btnEndLeaderboard'),
     btnAgain: document.getElementById('btnAgain'),
     btnRestart: document.getElementById('btnRestart'),
     btnSound: document.getElementById('btnSound'),
@@ -246,13 +252,20 @@
     btnZoomIn: document.getElementById('btnZoomIn'),
     btnZoomOut: document.getElementById('btnZoomOut'),
     btnZoomFit: document.getElementById('btnZoomFit'),
+    boardScreen: document.getElementById('boardScreen'),
+    scoreBoardNotice: document.getElementById('scoreBoardNotice'),
+    scoreBoardList: document.getElementById('scoreBoardList'),
+    scoreBoardEmpty: document.getElementById('scoreBoardEmpty'),
+    btnScoreAll: document.getElementById('btnScoreAll'),
+    btnScoreWeek: document.getElementById('btnScoreWeek'),
+    btnScoreBoardClose: document.getElementById('btnScoreBoardClose'),
   };
   const engine = Engine.create({ positionIterations: 10, velocityIterations: 8 });
   engine.gravity.y = 1;
   const world = engine.world;
   /** 版本戳：每次改完随手改一下，标题页角落和 window.__nai.build 都能看到，
    *  方便确认浏览器里跑的是不是最新那份（file:// 打开时页面不会自己刷新） */
-  const BUILD = '2026-10-18 · 奶龙快跑与防刷榜';
+  const BUILD = '2026-10-21 · 手机 HUD 与弹弓榜';
   let state = 'title'; // title | pick | intro | aim | fly | settling | clearing | restartConfirm | over
   let score = 0;
   let birdsLeft = 0;
@@ -279,6 +292,13 @@
   let endlessResume = null;   // 中途退出无尽时的暂停点（同一页面内恢复）
   let resumePaused = false;
   let pausedCallbacks = [];
+  const runStats = { pigs: 0, blocks: 0, bosses: 0, bonus: 0 };
+  let levelStartStats = { ...runStats };
+  let runStartedAt = 0;
+  let scoreSubmitted = false;
+  let scoreSubmitBusy = false;
+  let scoreBoardKind = 'all';
+  let scoreBoardReturn = 'title';
   let restartPrevState = null;
   let restartUiPaused = false;
   let intro = null;        // 开场动画时间轴
@@ -430,6 +450,7 @@
     birdQueue = levelBirds.slice();
     birdsLeft = birdQueue.length;
     levelStartScore = score; // 重打 boss 关时把分数退回到这一关开始的时候
+    levelStartStats = { ...runStats };
     updateAmmo();
     updateBossBar();
     if (immediateLoad) loadBird();
@@ -583,6 +604,7 @@
       if (info.boss) {
         // boss 死法：仰天大笑，慢悠悠翻着飞出画面
         score += 30000;
+        runStats.bosses += 1;
         addFloater(body.position.x, body.position.y - 90, 'BOSS +30000', '#ff9a3c');
         flyingBosses.push({
           x: body.position.x,
@@ -612,6 +634,7 @@
         return;
       }
       score += 5000;
+      runStats.pigs += 1;
       addFloater(body.position.x, body.position.y - 40, '+5000', '#ff6f3c');
       // 补给奶蛙：随机往队列里塞一颗奶蛋
       if (info.bonus) {
@@ -642,6 +665,7 @@
     } else {
       blocks = blocks.filter((b) => b !== body);
       score += 500;
+      runStats.blocks += 1;
       addFloater(body.position.x, body.position.y - 20, '+500', '#c98a4b');
       const mat = MATS[info.material];
       burst(body.position.x, body.position.y, 16, mat.color, 'chunk');
@@ -1396,6 +1420,7 @@
     const bonus = Math.max(0, remaining - unusedNukes) * 10000;
     if (bonus) {
       score += bonus;
+      runStats.bonus += bonus;
       updateScore();
       addFloater(slingAnchor().x + 120, slingAnchor().y - 60, `剩弹奖励 +${bonus}`, '#3aa76d');
     }
@@ -1436,17 +1461,26 @@
       return;
     }
     if (mode === 'endless') {
+      Object.assign(runStats, levelStartStats);
+      score = totalScore;
+      updateScore();
       saveEndlessBest();
       showEnd(true, 0, 0, {
         title: '无尽模式结束',
         scoreLabel: `${totalScore} 分`,
         note: `打到第 ${endlessLevel} 关 · 最好成绩：第 ${bestEndless().level} 关`,
       });
+      prepareSlingshotSubmission();
       return;
     }
     showEnd(false, 0);
   };
   const showEnd = (won, stars, remaining = 0, custom = null) => {
+    el.boardScreen.classList.add('hide');
+    el.slingshotSubmit.classList.add('hide');
+    el.btnEndLeaderboard.classList.add('hide');
+    el.slingshotSubmitMsg.textContent = '';
+    el.slingshotSubmitMsg.classList.remove('bad');
     el.end.classList.remove('hide');
     // 从编辑器点"试玩"进来的，结算面板给一个"回编辑器"
     el.btnBackEditor.classList.toggle('hide', !cameFromEditor);
@@ -1510,6 +1544,185 @@
     try {
       localStorage.setItem(BEST_KEY, JSON.stringify(next));
     } catch (e) { /* 隐私模式下存不了，忽略 */ }
+  };
+  const resetRunStats = () => {
+    Object.assign(runStats, { pigs: 0, blocks: 0, bosses: 0, bonus: 0 });
+    levelStartStats = { ...runStats };
+    runStartedAt = Date.now();
+    scoreSubmitted = false;
+    scoreSubmitBusy = false;
+    if (el.slingshotSubmit) el.slingshotSubmit.classList.add('hide');
+    if (el.slingshotSubmitMsg) {
+      el.slingshotSubmitMsg.textContent = '';
+      el.slingshotSubmitMsg.classList.remove('bad');
+    }
+  };
+
+  // ---------------------------------------------------------------- 无尽榜（Supabase，免登录）
+  // 表结构和真正兜底在 supabase/slingshot_scores.sql；这里只负责体验和即时提示。
+  const SCORE_SUPABASE_REST = 'https://buueozmrxfjqcaiqyzhq.supabase.co/rest/v1';
+  const SCORE_SUPABASE_KEY = 'sb_publishable_dN25ruwymHdivLup377eLg_9WTi1cOt';
+  const SCORE_NAME_KEY = 'naidan-slingshot-score-name-v1';
+  const storedScoreName = () => {
+    try { return localStorage.getItem(SCORE_NAME_KEY) || ''; } catch (e) { return ''; }
+  };
+  const rememberScoreName = (name) => {
+    try { localStorage.setItem(SCORE_NAME_KEY, name); } catch (e) { /* 隐私模式忽略 */ }
+  };
+  const scoreWeekStart = () => {
+    const bj = new Date(Date.now() + 8 * 3600e3);
+    const day = (bj.getUTCDay() + 6) % 7;
+    return new Date(Date.UTC(bj.getUTCFullYear(), bj.getUTCMonth(), bj.getUTCDate() - day) - 8 * 3600e3).toISOString();
+  };
+  const scoreRest = async (path, opts = {}) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
+    try {
+      return await fetch(`${SCORE_SUPABASE_REST}${path}`, {
+        ...opts,
+        signal: ctrl.signal,
+        cache: 'no-store',
+        headers: { apikey: SCORE_SUPABASE_KEY, Accept: 'application/json', ...(opts.headers || {}) },
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  const computedRunScore = () =>
+    runStats.pigs * 5000 + runStats.blocks * 500 + runStats.bosses * 30000 + runStats.bonus;
+  const scorePayload = (name) => ({
+    name,
+    score: computedRunScore(),
+    level: endlessLevel,
+    pigs: runStats.pigs,
+    blocks: runStats.blocks,
+    bosses: runStats.bosses,
+    bonus: runStats.bonus,
+    run_seconds: Math.max(1, Math.ceil((Date.now() - runStartedAt) / 1000)),
+  });
+  const scoreRow = (text, className = '') => {
+    const span = document.createElement('span');
+    span.className = className;
+    span.textContent = text;
+    return span;
+  };
+  const renderScoreRows = (list) => {
+    el.scoreBoardList.innerHTML = '';
+    const me = storedScoreName().toLowerCase();
+    for (const [i, row] of list.entries()) {
+      const li = document.createElement('li');
+      if (String(row.name || '').toLowerCase() === me) li.className = 'me';
+      li.append(
+        scoreRow(String(i + 1), 'rk'),
+        scoreRow(String(row.name || '匿名玩家'), 'nm'),
+        scoreRow(Number(row.score || 0).toLocaleString('zh-CN'), 'sc'),
+        scoreRow(`第 ${Number(row.level || 0)} 关`, 'lv'),
+      );
+      el.scoreBoardList.appendChild(li);
+    }
+  };
+  const loadScoreBoard = async (kind = scoreBoardKind) => {
+    scoreBoardKind = kind === 'week' ? 'week' : 'all';
+    el.btnScoreAll.classList.toggle('ghost', scoreBoardKind !== 'all');
+    el.btnScoreWeek.classList.toggle('ghost', scoreBoardKind !== 'week');
+    el.scoreBoardNotice.classList.remove('bad');
+    el.scoreBoardNotice.textContent = '加载中…';
+    el.scoreBoardEmpty.classList.add('hide');
+    el.scoreBoardList.innerHTML = '';
+    let path = '/slingshot_scores?select=name,score,level,created_at&order=score.desc&limit=300';
+    if (scoreBoardKind === 'week') path += `&created_at=gte.${encodeURIComponent(scoreWeekStart())}`;
+    try {
+      const res = await scoreRest(path);
+      if (res.status === 404) {
+        el.scoreBoardNotice.textContent = '';
+        el.scoreBoardEmpty.textContent = '排行榜还没开通，等作者建好表就能用啦';
+        el.scoreBoardEmpty.classList.remove('hide');
+        return;
+      }
+      if (!res.ok) throw new Error(String(res.status));
+      const rows = await res.json();
+      const seen = new Set();
+      const list = [];
+      for (const row of rows) {
+        const key = String(row.name || '').toLowerCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        list.push(row);
+        if (list.length >= 50) break;
+      }
+      el.scoreBoardNotice.textContent = list.length ? '前 50 名 · 同昵称只显示最高分' : '';
+      if (!list.length) {
+        el.scoreBoardEmpty.textContent = '还没有人上榜，去无尽模式打一把！';
+        el.scoreBoardEmpty.classList.remove('hide');
+        return;
+      }
+      renderScoreRows(list);
+    } catch (e) {
+      el.scoreBoardNotice.textContent = '连不上排行榜，稍后再试';
+      el.scoreBoardNotice.classList.add('bad');
+    }
+  };
+  const openScoreBoard = (kind = 'all') => {
+    scoreBoardReturn = state === 'over' ? 'end' : 'title';
+    el.boardScreen.classList.remove('hide');
+    loadScoreBoard(kind);
+  };
+  const closeScoreBoard = () => {
+    el.boardScreen.classList.add('hide');
+    if (scoreBoardReturn === 'end') el.end.classList.remove('hide');
+    else el.title.classList.remove('hide');
+  };
+  const submitSlingshotScore = async () => {
+    if (scoreSubmitBusy) return;
+    if (mode !== 'endless' || state !== 'over' || scoreSubmitted) return;
+    const name = (el.slingshotName.value || '').trim();
+    const say = (text, bad = false) => {
+      el.slingshotSubmitMsg.textContent = text;
+      el.slingshotSubmitMsg.classList.toggle('bad', bad);
+    };
+    if (!name) return say('先填个昵称', true);
+    if (name.length > 12) return say('昵称最多 12 个字', true);
+    const mod = window.WorkshopModeration && window.WorkshopModeration.check(name);
+    if (mod && !mod.ok) return say(`昵称${mod.reason}`, true);
+    const payload = scorePayload(name);
+    if (payload.score !== totalScore || payload.score !== score) {
+      return say('成绩校验失败，请重新打一局', true);
+    }
+    if (payload.score <= 0) return say('分数为 0，暂时不能上榜', true);
+    rememberScoreName(name);
+    scoreSubmitBusy = true;
+    el.btnSubmitSlingshot.disabled = true;
+    say('上传中…');
+    try {
+      const res = await scoreRest('/slingshot_scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        scoreSubmitted = true;
+        el.slingshotSubmit.classList.add('hide');
+        say(`已上传：${name} · 第 ${endlessLevel} 关 · ${payload.score} 分`);
+        return;
+      }
+      if (res.status === 404) return say('排行榜还没开通（等作者在 Supabase 建表）', true);
+      const text = await res.text();
+      if (/违禁|广告/.test(text)) return say('昵称包含违禁词或联系方式', true);
+      if (/成绩|分数|异常|拒绝/.test(text)) return say('成绩校验未通过，已拒绝提交', true);
+      say('上传失败，稍后再试', true);
+    } catch (e) {
+      say('连不上排行榜，稍后再试', true);
+    } finally {
+      scoreSubmitBusy = false;
+      el.btnSubmitSlingshot.disabled = false;
+    }
+  };
+  const prepareSlingshotSubmission = () => {
+    const canSubmit = mode === 'endless' && state === 'over' && !retryPending && !scoreSubmitted && totalScore > 0;
+    el.slingshotSubmit.classList.toggle('hide', !canSubmit);
+    el.btnEndLeaderboard.classList.toggle('hide', !(mode === 'endless' && state === 'over' && !retryPending));
+    el.slingshotName.value = storedScoreName();
+    if (!canSubmit) el.slingshotSubmitMsg.textContent = '';
   };
 
   const updateLevelChip = () => {
@@ -1623,7 +1836,9 @@
   const startRun = (which, auto = false) => {
     clearEndlessResume();
     AudioKit.unlock();
+    el.boardScreen.classList.add('hide');
     carriedNuke = 0;
+    resetRunStats();
     mode = which;
     el.hud.classList.remove('hide');
     el.title.classList.add('hide');
@@ -1666,7 +1881,9 @@
 
   const restart = (auto = false) => {
     el.end.classList.add('hide');
+    el.boardScreen.classList.add('hide');
     AudioKit.flyStop();
+    resetRunStats();
     pickChoice = null;   // 重开也算新的一局
     if (mode === 'custom') {
       // 重开自制关卡：同一份关卡数据重建
@@ -1691,6 +1908,7 @@
   const backToMenu = () => {
     clearEndlessResume();
     el.end.classList.add('hide');
+    el.boardScreen.classList.add('hide');
     el.title.classList.remove('hide');
     el.btnExitLevel.classList.add('hide');
     el.hint.classList.add('hide');
@@ -2002,6 +2220,12 @@
   el.btnWorkshop.addEventListener('click', () => openWorkshop());
   el.btnEndless.addEventListener('click', () => startRun('endless'));
   el.btnResumeEndless.addEventListener('click', () => resumeEndlessRun());
+  el.btnLeaderboard.addEventListener('click', () => openScoreBoard('all'));
+  el.btnEndLeaderboard.addEventListener('click', () => openScoreBoard(scoreBoardKind));
+  el.btnScoreAll.addEventListener('click', () => loadScoreBoard('all'));
+  el.btnScoreWeek.addEventListener('click', () => loadScoreBoard('week'));
+  el.btnScoreBoardClose.addEventListener('click', closeScoreBoard);
+  el.btnSubmitSlingshot.addEventListener('click', submitSlingshotScore);
   el.btnAgain.addEventListener('click', () => {
     if (retryPending) {
       // 重打 boss 关：用同一份关卡数据重建，布局完全一样，分数退回进关时
@@ -2009,6 +2233,8 @@
       el.end.classList.add('hide');
       score = levelStartScore;
       totalScore = score;
+      Object.assign(runStats, levelStartStats);
+      scoreSubmitted = false;
       updateScore();
       promptPick(level, { quick: false });   // 多带的那颗照旧（沿用开局挑的那颗）
       return;
@@ -2034,6 +2260,10 @@
   el.btnZoomFit.addEventListener('click', () => { if (state !== 'pick') setZoom(MIN_ZOOM); });
 
   window.addEventListener('keydown', (e) => {
+    if (!el.boardScreen.classList.contains('hide')) {
+      if (e.key === 'Escape') closeScoreBoard();
+      return;
+    }
     if (state === 'edit') {
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (editor && editor.selected) { editorErase(editor.selected); e.preventDefault(); }
@@ -4488,6 +4718,9 @@
       endlessLevel,
       matchSeed,
       carriedNuke,
+      runStats: { ...runStats },
+      computedScore: computedRunScore(),
+      scoreSubmitted,
       nukeFlash: Math.round(nukeFlash * 100) / 100,
       nukeColorFlow: Math.round((timeMs * 0.055) % 360),
       endlessResume: endlessResume ? {
@@ -4593,6 +4826,28 @@
         ...inFlight.map((b) => Vector.magnitude(b.velocity))
       ),
     }),
+    scoreboard: {
+      open: (kind = 'all') => { openScoreBoard(kind); return kind; },
+      close: () => { closeScoreBoard(); return state; },
+      payload: (name = '验收玩家') => scorePayload(name),
+      stats: () => ({
+        ...runStats,
+        score,
+        totalScore,
+        computedScore: computedRunScore(),
+        endlessLevel,
+        submitted: scoreSubmitted,
+      }),
+      submit: async (name = '验收玩家') => {
+        el.slingshotName.value = name;
+        await submitSlingshotScore();
+        return {
+          submitted: scoreSubmitted,
+          message: el.slingshotSubmitMsg.textContent,
+          formVisible: !el.slingshotSubmit.classList.contains('hide'),
+        };
+      },
+    },
     start: (which = 'level1') => startRun(which, true),
     /** 开局选蛋：面板上那颗由脚本点下去（type 省略时相当于点"随便来一颗"） */
     pick: (type) => {
@@ -4725,6 +4980,7 @@
     loadEndless: (n, seed) => {
       clearEndlessResume();
       carriedNuke = 0;
+      resetRunStats();
       mode = 'endless';
       endlessLevel = n;
       matchSeed = seed;
@@ -4742,6 +4998,7 @@
     loadEndlessNuke: (n, seed, at = 1, count = 1) => {
       clearEndlessResume();
       carriedNuke = 0;
+      resetRunStats();
       mode = 'endless';
       endlessLevel = n;
       matchSeed = seed;
