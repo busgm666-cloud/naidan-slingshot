@@ -115,6 +115,13 @@ try {
   if (!ended.formVisible) failures.push('无尽结算没有显示成绩上传框');
   if (!ended.panelInside) failures.push('375×667 无尽结算面板越界');
 
+  // 结算后残余坍塌/清场不应再改成绩快照，否则会出现“成绩校验失败”
+  await page.evaluate(() => window.__nai.clearStage());
+  await sleep(500);
+  const afterCollapse = await page.evaluate(() => window.__nai.scoreboard.stats());
+  if (afterCollapse.finalScore !== ended.total) {
+    failures.push(`结算后成绩快照发生变化：${JSON.stringify({ ended, afterCollapse })}`);
+  }
   const submit = await page.evaluate(() => window.__nai.scoreboard.submit('奶蛋测试'));
   if (!submit.submitted || submit.formVisible) failures.push(`成绩上传 UI 未完成：${JSON.stringify(submit)}`);
   if (!posted) failures.push('没有发出排行榜 POST');

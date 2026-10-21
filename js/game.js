@@ -265,7 +265,7 @@
   const world = engine.world;
   /** 版本戳：每次改完随手改一下，标题页角落和 window.__nai.build 都能看到，
    *  方便确认浏览器里跑的是不是最新那份（file:// 打开时页面不会自己刷新） */
-  const BUILD = '2026-10-21 · 手机 HUD 与弹弓榜';
+  const BUILD = '2026-10-21 · 弹弓榜结算修复';
   let state = 'title'; // title | pick | intro | aim | fly | settling | clearing | restartConfirm | over
   let score = 0;
   let birdsLeft = 0;
@@ -297,6 +297,10 @@
   let runStartedAt = 0;
   let scoreSubmitted = false;
   let scoreSubmitBusy = false;
+  let finalRunStats = null;
+  let finalRunLevel = 1;
+  let finalRunSeconds = 0;
+  let finalRunScore = 0;
   let scoreBoardKind = 'all';
   let scoreBoardReturn = 'title';
   let restartPrevState = null;
@@ -603,8 +607,10 @@
       pigs = pigs.filter((p) => p !== body);
       if (info.boss) {
         // boss 死法：仰天大笑，慢悠悠翻着飞出画面
-        score += 30000;
-        runStats.bosses += 1;
+        if (state !== 'over' && state !== 'clearing') {
+          score += 30000;
+          runStats.bosses += 1;
+        }
         addFloater(body.position.x, body.position.y - 90, 'BOSS +30000', '#ff9a3c');
         flyingBosses.push({
           x: body.position.x,
@@ -633,8 +639,10 @@
         maybeFinish();
         return;
       }
-      score += 5000;
-      runStats.pigs += 1;
+      if (state !== 'over' && state !== 'clearing') {
+        score += 5000;
+        runStats.pigs += 1;
+      }
       addFloater(body.position.x, body.position.y - 40, '+5000', '#ff6f3c');
       // 补给奶蛙：随机往队列里塞一颗奶蛋
       if (info.bonus) {
@@ -664,8 +672,10 @@
       shake(9);
     } else {
       blocks = blocks.filter((b) => b !== body);
-      score += 500;
-      runStats.blocks += 1;
+      if (state !== 'over' && state !== 'clearing') {
+        score += 500;
+        runStats.blocks += 1;
+      }
       addFloater(body.position.x, body.position.y - 20, '+500', '#c98a4b');
       const mat = MATS[info.material];
       burst(body.position.x, body.position.y, 16, mat.color, 'chunk');
@@ -1464,6 +1474,7 @@
       Object.assign(runStats, levelStartStats);
       score = totalScore;
       updateScore();
+      freezeSlingshotResult();
       saveEndlessBest();
       showEnd(true, 0, 0, {
         title: '无尽模式结束',
@@ -1551,6 +1562,10 @@
     runStartedAt = Date.now();
     scoreSubmitted = false;
     scoreSubmitBusy = false;
+    finalRunStats = null;
+    finalRunLevel = 1;
+    finalRunSeconds = 0;
+    finalRunScore = 0;
     if (el.slingshotSubmit) el.slingshotSubmit.classList.add('hide');
     if (el.slingshotSubmitMsg) {
       el.slingshotSubmitMsg.textContent = '';
@@ -1590,16 +1605,27 @@
   };
   const computedRunScore = () =>
     runStats.pigs * 5000 + runStats.blocks * 500 + runStats.bosses * 30000 + runStats.bonus;
-  const scorePayload = (name) => ({
-    name,
-    score: computedRunScore(),
-    level: endlessLevel,
-    pigs: runStats.pigs,
-    blocks: runStats.blocks,
-    bosses: runStats.bosses,
-    bonus: runStats.bonus,
-    run_seconds: Math.max(1, Math.ceil((Date.now() - runStartedAt) / 1000)),
-  });
+  const freezeSlingshotResult = () => {
+    finalRunStats = { ...runStats };
+    finalRunLevel = endlessLevel;
+    finalRunSeconds = Math.max(1, Math.ceil((Date.now() - runStartedAt) / 1000));
+    finalRunScore = finalRunStats.pigs * 5000 + finalRunStats.blocks * 500
+      + finalRunStats.bosses * 30000 + finalRunStats.bonus;
+    return finalRunScore;
+  };
+  const scorePayload = (name) => {
+    const stats = finalRunStats || runStats;
+    return {
+      name,
+      score: stats.pigs * 5000 + stats.blocks * 500 + stats.bosses * 30000 + stats.bonus,
+      level: finalRunStats ? finalRunLevel : endlessLevel,
+      pigs: stats.pigs,
+      blocks: stats.blocks,
+      bosses: stats.bosses,
+      bonus: stats.bonus,
+      run_seconds: finalRunStats ? finalRunSeconds : Math.max(1, Math.ceil((Date.now() - runStartedAt) / 1000)),
+    };
+  };
   const scoreRow = (text, className = '') => {
     const span = document.createElement('span');
     span.className = className;
@@ -1685,7 +1711,7 @@
     const mod = window.WorkshopModeration && window.WorkshopModeration.check(name);
     if (mod && !mod.ok) return say(`昵称${mod.reason}`, true);
     const payload = scorePayload(name);
-    if (payload.score !== totalScore || payload.score !== score) {
+    if (!finalRunStats || payload.score !== finalRunScore) {
       return say('成绩校验失败，请重新打一局', true);
     }
     if (payload.score <= 0) return say('分数为 0，暂时不能上榜', true);
@@ -1718,7 +1744,8 @@
     }
   };
   const prepareSlingshotSubmission = () => {
-    const canSubmit = mode === 'endless' && state === 'over' && !retryPending && !scoreSubmitted && totalScore > 0;
+    const canSubmit = mode === 'endless' && state === 'over' && !retryPending
+      && !scoreSubmitted && !!finalRunStats && finalRunScore > 0;
     el.slingshotSubmit.classList.toggle('hide', !canSubmit);
     el.btnEndLeaderboard.classList.toggle('hide', !(mode === 'endless' && state === 'over' && !retryPending));
     el.slingshotName.value = storedScoreName();
@@ -4835,6 +4862,8 @@
         score,
         totalScore,
         computedScore: computedRunScore(),
+        finalScore: finalRunScore,
+        finalStats: finalRunStats ? { ...finalRunStats } : null,
         endlessLevel,
         submitted: scoreSubmitted,
       }),
